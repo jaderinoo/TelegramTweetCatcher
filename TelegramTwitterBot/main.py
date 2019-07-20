@@ -4,9 +4,28 @@ from telegram.ext import (Updater, CommandHandler)
 import json 
 import time
 import datetime
+import tweepy
 
+def start(bot,update):
+    # Authenticate to Twitter
+    auth = tweepy.OAuthHandler("CONSUMER_KEY", "CONSUMER_SECRET")
+    auth.set_access_token("ACCESS_TOKEN", "ACCESS_TOKEN_SECRET")
 
-def start():
+    # Create API object
+    api = tweepy.API(auth)
+    
+    #Pull chat ID
+    chat_id = update.message.chat_id
+    
+    # Create a tweet
+    #api.update_status("Hello Tweepy")
+        
+    #Initialize message
+    message = "it works"
+    
+    #Sends the help message to the user
+    bot.sendMessage(chat_id, message)
+    
     return
  
 
@@ -44,8 +63,8 @@ def cooldown(cooldownSeconds,currentDT):
  
 #Initializes the telegram bot and listens for a command
 def main():
-    key = ''
-    updater = Updater(key)     
+    telgramKey = 'Telegramkey'
+    updater = Updater(telgramKey)     
     dp = updater.dispatcher
     
     #Creating Handler
