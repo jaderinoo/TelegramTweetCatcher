@@ -2,16 +2,18 @@ from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from telegram.ext import (Updater, CommandHandler)
 import json 
-import time
-import datetime
 import tweepy
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
     keys = file.read().split('\n')
-     
-currentDT = datetime.datetime.now()
-cooldownSeconds = 0
+    
+with open('follow.txt', 'r') as file:
+    follow = file.read().split('\n')
+
+class followlst(object):
+    def __init__(self, name=None):
+        self.name = name
 
 def start(bot,update):
     
@@ -41,14 +43,24 @@ def start(bot,update):
     except:
         print("Error during authentication")
         
-    user = []
-    ubikiri = api.get_user("Ubikiri_main")
-    SN = api.get_user("SilentNotary")
-
+    
+    temp = []
+    i = 0
+    while(len(follow) != len(temp)):
+        temp[i] = api.get_user(follow[0])
+        message += temp[i]
+        i + 1
+    
     print("User details:")
-    print(ubikiri.name + ", " + SN.name)
-        
-        
+    print(message)
+    
+
+    status_list = api.user_timeline(follow[1])
+    status = status_list[0]
+    json_str = json.dumps(status._json)
+       
+    print(json_str)   
+    
     return
  
 
@@ -65,25 +77,6 @@ def help(bot,update):
         
     return
  
-def cooldown(cooldownSeconds,currentDT):
-    
-    #Initialize the time in seconds needed to allow user input
-    if cooldownSeconds == 0:
-        cooldownSeconds = currentDT.second + 5
-        print ("cc set to = " + str(currentDT.second))
-        print ("Cooldown set to = " + str(cooldownSeconds))
-       
-    #Check if the initialized time is over 60, as the currentDT doesnt pass 60 
-    if cooldownSeconds >= 60:
-            cooldownSeconds = cooldownSeconds - 60
-        
-    #Continue to update currentDT until it matches the cooldown time
-    while currentDT.second != cooldownSeconds:
-        currentDT = datetime.datetime.now()
-        time.sleep(1)
-        print ("Current = " + str(currentDT.second))
-        print ("Cooldown = " + str(cooldownSeconds))
- 
 #Initializes the telegram bot and listens for a command
 def main():
     telgramKey = keys[4]
@@ -93,7 +86,7 @@ def main():
     #Creating Handler
     dp.add_handler(CommandHandler('start',start))
     dp.add_handler(CommandHandler('help',help))
-    
+
     #Start polling
     updater.start_polling()
     updater.idle()
