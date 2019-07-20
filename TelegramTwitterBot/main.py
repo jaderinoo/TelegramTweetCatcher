@@ -6,10 +6,17 @@ import time
 import datetime
 import tweepy
 
+#Fetch keys for bot and Coinmarketcap API
+with open('keys.txt', 'r') as file:
+    keys = file.read().split('\n')
+     
+currentDT = datetime.datetime.now()
+cooldownSeconds = 0
+
 def start(bot,update):
     # Authenticate to Twitter
-    auth = tweepy.OAuthHandler("CONSUMER_KEY", "CONSUMER_SECRET")
-    auth.set_access_token("ACCESS_TOKEN", "ACCESS_TOKEN_SECRET")
+    auth = tweepy.OAuthHandler(keys[0], keys[1])
+    auth.set_access_token(keys[2], keys[3])
 
     # Create API object
     api = tweepy.API(auth)
@@ -63,7 +70,7 @@ def cooldown(cooldownSeconds,currentDT):
  
 #Initializes the telegram bot and listens for a command
 def main():
-    telgramKey = 'Telegramkey'
+    telgramKey = keys[4]
     updater = Updater(telgramKey)     
     dp = updater.dispatcher
     
