@@ -14,6 +14,10 @@ currentDT = datetime.datetime.now()
 cooldownSeconds = 0
 
 def start(bot,update):
+    
+    #Testing keys 
+    print(keys[0] + "," + keys[1]+ "," + keys[2]+ "," + keys[3])
+    
     # Authenticate to Twitter
     auth = tweepy.OAuthHandler(keys[0], keys[1])
     auth.set_access_token(keys[2], keys[3])
@@ -24,15 +28,27 @@ def start(bot,update):
     #Pull chat ID
     chat_id = update.message.chat_id
     
-    # Create a tweet
-    #api.update_status("Hello Tweepy")
+    try:
+        api.verify_credentials()
+        print("Authentication OK")
         
-    #Initialize message
-    message = "it works"
+        #Initialize message
+        message = "Authentication OK"
+        
+        #Sends the help message to the user
+        bot.sendMessage(chat_id, message)
     
-    #Sends the help message to the user
-    bot.sendMessage(chat_id, message)
-    
+    except:
+        print("Error during authentication")
+        
+    user = []
+    ubikiri = api.get_user("Ubikiri_main")
+    SN = api.get_user("SilentNotary")
+
+    print("User details:")
+    print(ubikiri.name + ", " + SN.name)
+        
+        
     return
  
 
