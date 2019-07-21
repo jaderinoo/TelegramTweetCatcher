@@ -44,22 +44,28 @@ def start(bot,update):
         print("Error during authentication")
         
     
-    temp = []
     i = 0
-    while(len(follow) != len(temp)):
-        temp[i] = api.get_user(follow[0])
-        message += temp[i]
-        i + 1
-    
-    print("User details:")
-    print(message)
-    
 
-    status_list = api.user_timeline(follow[1])
-    status = status_list[0]
-    json_str = json.dumps(status._json)
-       
-    print(json_str)   
+    while(len(follow) >= i):
+        
+        #Setup temp using the txt follow file
+        temp = api.get_user(follow[i])
+        
+        #Print the current follower
+        print("Follower = " + follow[i])
+        
+        #Load response into data
+        status_list = api.user_timeline(temp.name)
+        status = status_list[0]
+        data = json.dumps(status._json)
+        
+        #Pring the data
+        print(data)   
+        bot.sendMessage(chat_id, data)
+    
+        #Increment i to move to next
+        i = i + 1
+    
     
     return
  
