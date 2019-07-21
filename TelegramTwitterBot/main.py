@@ -4,6 +4,7 @@ from telegram.ext import (Updater, CommandHandler)
 import json 
 import tweepy
 import time
+from unidecode import unidecode
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
@@ -45,48 +46,51 @@ def start(bot,update):
         print("Error during authentication")
         
     
+    
     i = 0
-    x = 1
     archive = ["null"]
     
-    while True:
+    #Initializes the first position of archive
+    temp = follow[i]
+    status_list = api.user_timeline(str(temp))
+    status = status_list[0]
+    dataUser = json.dumps(status._json['text']) 
+    archive[0] = str(dataUser)
+        
+    while(len(follow) >= i):
+        #Cooldown Timer
+        time.sleep(1)
+        
+        #Setup vars using the txt follow file
+        chat_id = update.message.chat_id
+    
+        #Print the current follower
+        print("Follower = " + follow[i])
+            
+        #Load User response into data
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
-        dataUser = json.dumps(status._json) 
-        archive[0] = str(dataUser)    
-        time.sleep(1)
-        while(len(follow) >= i):
-            #Setup vars using the txt follow file
+        tempData = json.dumps(status._json['text'])        
+        print(unidecode(tempData))
+        if tempData not in archive :
+            archive.append(str(tempData))
+            print("!=")
             chat_id = update.message.chat_id
-    
-            #Print the current follower
-            print("Follower = " + follow[i])
             
-            #Load User response into data
-            temp = follow[i]
-            status_list = api.user_timeline(str(temp))
-            status = status_list[0]
-            tempData = json.dumps(status._json)        
-            
-            if tempData not in archive :
-                archive.append(str(tempData))
-                print("!=")
-                chat_id = update.message.chat_id
-                
-                
-                
-                #Format the string with data 
-                string = "This is a string"
-                bot.sendMessage(chat_id, string)
+            text = str(tempData)
+            text.encode('utf-16be', 'ignore')  
+
+            #Format the string with data 
+            bot.sendMessage(chat_id, text)
                 
             
-            #Increment i to move to next
-            i = i + 1
+        #Increment i to move to next
+        i = i + 1
             
-            if(len(follow) == i):
-                i = 0
-        x += 1
+        if(len(follow) == i):
+            i = 0
+        
 
 #Initializes the telegram bot and listens for a command
 def main():
