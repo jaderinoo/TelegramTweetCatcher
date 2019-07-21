@@ -1,8 +1,14 @@
-from requests import Session
-from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
+from tweepy import Stream
+from tweepy import OAuthHandler
 from telegram.ext import (Updater, CommandHandler)
-import json 
-import tweepy
+from tweepy.streaming import StreamListener
+import json
+import sqlite3
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from unidecode import unidecode
+import time
+
+analyzer = SentimentIntensityAnalyzer()
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
@@ -10,95 +16,80 @@ with open('keys.txt', 'r') as file:
     
 with open('follow.txt', 'r') as file:
     follow = file.read().split('\n')
+    
+conn = sqlite3.connect('twitter.db')
+c = conn.cursor()
 
-class followlst(object):
-    def __init__(self, name=None):
-        self.name = name
+telgramKey = keys[4]
+updater = Updater(telgramKey)
+dp = updater.dispatcher
 
-def start(bot,update):
-    
-    #Testing keys 
-    print(keys[0] + "," + keys[1]+ "," + keys[2]+ "," + keys[3])
-    
-    # Authenticate to Twitter
-    auth = tweepy.OAuthHandler(keys[0], keys[1])
-    auth.set_access_token(keys[2], keys[3])
+def create_table():
+    c.execute("CREATE TABLE IF NOT EXISTS sentiment(unix REAL, tweet TEXT, sentiment REAL)")
+    conn.commit()
+create_table()
 
-    # Create API object
-    api = tweepy.API(auth)
-    
-    #Pull chat ID
-    chat_id = update.message.chat_id
-    
+#consumer key, consumer secret, access token, access secret.
+ckey= keys[0]
+csecret= keys[1]
+atoken= keys[2]
+asecret= keys[3]
+
+class listener(StreamListener):
+
+    def on_data(self, data, bot, update):
+        try:
+            data = json.loads(data)
+            tweet = unidecode(data['text'])
+            time_ms = data['timestamp_ms']
+            vs = analyzer.polarity_scores(tweet)
+            sentiment = vs['compound']
+            print(time_ms, tweet, sentiment)
+            c.execute("INSERT INTO sentiment (unix, tweet, sentiment) VALUES (?, ?, ?)",
+                  (time_ms, tweet, sentiment))
+            conn.commit()
+                   
+            chat_id = update.message.chat_id
+            bot.sendMessage(chat_id, temp)
+
+        except KeyError as e:
+            print(str(e))
+        return(True)
+
+    def on_error(self, status):
+        print(status)
+        
+
+while True:
+
     try:
-        api.verify_credentials()
-        print("Authentication OK")
+        auth = OAuthHandler(ckey, csecret)
+        auth.set_access_token(atoken, asecret)
+        twitterStream = Stream(auth, listener())
         
-        #Initialize message
-        message = "Authentication OK"
+        #Sort through follow and add to stream
+        temp = follow[0]
+        i = 1
+        while(len(follow) >= i):
         
-        #Sends the help message to the user
-        bot.sendMessage(chat_id, message)
-    
-    except:
-        print("Error during authentication")
+            #Print the current follower
+            print(temp)
         
-    
-    i = 0
+            #Load User response into data
+            temp += ", " + str(follow[i]) 
+        
+            #Increment i to move to next
+            i += 1
+            
+        
 
-    while(len(follow) >= i):
+        #twitterStream.filter(follow=[follow])
+        #twitterStream.filter(follow=[follow[1]])
         
-        #Setup vars using the txt follow file
-        userInfo = api.get_user(follow[i])
-
-        
-        #Print the current follower
-        print("Follower = " + follow[i])
-        
-        #Load User response into data
-        temp = follow[i]
-        status_list = api.user_timeline(str(temp))
-        status = status_list[0]
-        dataUser = json.dumps(status._json)
-        print(dataUser)   
-        bot.sendMessage(chat_id, dataUser)
-        
-        #Increment i to move to next
-        i = i + 1
-    
-    
-    return
- 
-
-def help(bot,update): 
-
-    #Pull chat ID
-    chat_id = update.message.chat_id
-        
-    #Initialize message
-    message = "Please dont spam the bot, it only has 333 requests a day :) \nA 20 second cooldown is placed after each command execution. \n \n" + "Current command list: \n" + "/Price (coin symbol) \n" + "/Top \n" + "/Market \n"
-    
-    #Sends the help message to the user
-    bot.sendMessage(chat_id, message)
-        
-    return
- 
-#Initializes the telegram bot and listens for a command
-def main():
-    telgramKey = keys[4]
-    updater = Updater(telgramKey)     
-    dp = updater.dispatcher
-    
-    #Creating Handler
-    dp.add_handler(CommandHandler('start',start))
-    dp.add_handler(CommandHandler('help',help))
-
-    #Start polling
-    updater.start_polling()
-    updater.idle()
-    
-if __name__ == '__main__':
-    main()
-
-
-
+    except Exception as e:
+        print(str(e))
+        time.sleep(5)
+   
+#Start polling
+updater.start_polling()
+updater.idle()   
