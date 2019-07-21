@@ -48,21 +48,21 @@ def start(bot,update):
 
     while(len(follow) >= i):
         
-        #Setup temp using the txt follow file
-        temp = api.get_user(follow[i])
+        #Setup vars using the txt follow file
+        userInfo = api.get_user(follow[i])
+
         
         #Print the current follower
         print("Follower = " + follow[i])
         
-        #Load response into data
-        status_list = api.user_timeline(temp.name)
+        #Load User response into data
+        temp = follow[i]
+        status_list = api.user_timeline(str(temp))
         status = status_list[0]
-        data = json.dumps(status._json)
+        dataUser = json.dumps(status._json)
+        print(dataUser)   
+        bot.sendMessage(chat_id, dataUser)
         
-        #Pring the data
-        print(data)   
-        bot.sendMessage(chat_id, data)
-    
         #Increment i to move to next
         i = i + 1
     
