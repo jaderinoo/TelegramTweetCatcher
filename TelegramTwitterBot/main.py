@@ -3,6 +3,7 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from telegram.ext import (Updater, CommandHandler)
 import json 
 import tweepy
+import time
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
@@ -45,44 +46,48 @@ def start(bot,update):
         
     
     i = 0
-
-    while(len(follow) >= i):
-        
-        #Setup vars using the txt follow file
-        userInfo = api.get_user(follow[i])
-
-        
-        #Print the current follower
-        print("Follower = " + follow[i])
-        
-        #Load User response into data
+    x = 1
+    archive = ["null"]
+    
+    while True:
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
-        dataUser = json.dumps(status._json)
-        print(dataUser)   
-        bot.sendMessage(chat_id, dataUser)
-        
-        #Increment i to move to next
-        i = i + 1
+        dataUser = json.dumps(status._json) 
+        archive[0] = str(dataUser)    
+        time.sleep(1)
+        while(len(follow) >= i):
+            #Setup vars using the txt follow file
+            chat_id = update.message.chat_id
     
-    
-    return
- 
+            #Print the current follower
+            print("Follower = " + follow[i])
+            
+            #Load User response into data
+            temp = follow[i]
+            status_list = api.user_timeline(str(temp))
+            status = status_list[0]
+            tempData = json.dumps(status._json)        
+            
+            if tempData not in archive :
+                archive.append(str(tempData))
+                print("!=")
+                chat_id = update.message.chat_id
+                
+                
+                
+                #Format the string with data 
+                string = "This is a string"
+                bot.sendMessage(chat_id, string)
+                
+            
+            #Increment i to move to next
+            i = i + 1
+            
+            if(len(follow) == i):
+                i = 0
+        x += 1
 
-def help(bot,update): 
-
-    #Pull chat ID
-    chat_id = update.message.chat_id
-        
-    #Initialize message
-    message = "Please dont spam the bot, it only has 333 requests a day :) \nA 20 second cooldown is placed after each command execution. \n \n" + "Current command list: \n" + "/Price (coin symbol) \n" + "/Top \n" + "/Market \n"
-    
-    #Sends the help message to the user
-    bot.sendMessage(chat_id, message)
-        
-    return
- 
 #Initializes the telegram bot and listens for a command
 def main():
     telgramKey = keys[4]
@@ -91,7 +96,6 @@ def main():
     
     #Creating Handler
     dp.add_handler(CommandHandler('start',start))
-    dp.add_handler(CommandHandler('help',help))
 
     #Start polling
     updater.start_polling()
