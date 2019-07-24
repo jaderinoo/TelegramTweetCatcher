@@ -81,10 +81,10 @@ def start(bot,update):
             temp = follow[i]
             status_list = api.user_timeline(str(temp))
             status = status_list[0]
-            printData = json.dumps(status._json['entities']['urls']) 
+            printData = json.dumps(status._json['id']) 
             
             
-            text = str(printData)
+            text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
 
             #Format the string with data 
             bot.sendMessage(chat_id, text)
