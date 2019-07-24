@@ -54,7 +54,7 @@ def start(bot,update):
     temp = follow[i]
     status_list = api.user_timeline(str(temp))
     status = status_list[0]
-    dataUser = json.dumps(status._json['text']) 
+    dataUser = json.dumps(status._json['entities']) 
     archive[0] = str(dataUser)
         
     while(len(follow) >= i):
@@ -71,15 +71,20 @@ def start(bot,update):
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
-        tempData = json.dumps(status._json['text'])        
-        print(unidecode(tempData))
+        tempData = json.dumps(status._json['entities'])        
+        print(str(tempData))
         if tempData not in archive :
             archive.append(str(tempData))
             print("!=")
             chat_id = update.message.chat_id
             
-            text = str(tempData)
-            text.encode('utf-16be', 'ignore')  
+            temp = follow[i]
+            status_list = api.user_timeline(str(temp))
+            status = status_list[0]
+            printData = json.dumps(status._json['entities']['urls']) 
+            
+            
+            text = str(printData)
 
             #Format the string with data 
             bot.sendMessage(chat_id, text)
