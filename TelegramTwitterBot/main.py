@@ -4,7 +4,6 @@ from telegram.ext import (Updater, CommandHandler)
 import json 
 import tweepy
 import time
-from unidecode import unidecode
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
@@ -59,7 +58,7 @@ def start(bot,update):
         
     while(len(follow) >= i):
         #Cooldown Timer
-        time.sleep(1)
+        time.sleep(180)
         
         #Setup vars using the txt follow file
         chat_id = update.message.chat_id
