@@ -1,5 +1,3 @@
-from requests import Session
-from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 from telegram.ext import (Updater, CommandHandler)
 import json 
 import tweepy
@@ -11,10 +9,6 @@ with open('keys.txt', 'r') as file:
     
 with open('follow.txt', 'r') as file:
     follow = file.read().split('\n')
-
-class followlst(object):
-    def __init__(self, name=None):
-        self.name = name
 
 def start(bot,update):
     
@@ -31,21 +25,16 @@ def start(bot,update):
     #Pull chat ID
     chat_id = update.message.chat_id
     
+    #Attemps to connect to api and posts an OK if it does
     try:
         api.verify_credentials()
         print("Authentication OK")
-        
-        #Initialize message
-        message = "Authentication OK"
-        
-        #Sends the help message to the user
-        bot.sendMessage(chat_id, message)
     
     except:
         print("Error during authentication")
         
     
-    
+    #Initialize vars
     i = 0
     archive = ["null"]
     
@@ -60,44 +49,45 @@ def start(bot,update):
         #Cooldown Timer
         time.sleep(180)
         
-        #Setup vars using the txt follow file
+        #Updates Chatid
         chat_id = update.message.chat_id
     
         #Print the current follower
         print("Follower = " + follow[i])
             
-        #Load User response into data
+        #Load User response into tempData
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
         tempData = json.dumps(status._json['entities'])        
         print(str(tempData))
+        
+        #Check if the newly pulled status exists in the current set
         if tempData not in archive :
+            #Adds the new data into the archive
             archive.append(str(tempData))
-            print("!=")
+              
+            #Updates Chatid
             chat_id = update.message.chat_id
             
-            temp = follow[i]
-            status_list = api.user_timeline(str(temp))
-            status = status_list[0]
+            #Pulls the id from the json
             printData = json.dumps(status._json['id']) 
             
-            
+            #Format the string and sends it to the telegram user 
             text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
-
-            #Format the string with data 
             bot.sendMessage(chat_id, text)
-                
             
         #Increment i to move to next
         i = i + 1
             
+        #Reset i if follows is maxed
         if(len(follow) == i):
             i = 0
         
 
 #Initializes the telegram bot and listens for a command
 def main():
+    #Pulls Telegram api key from keys.txt and creates an updater
     telgramKey = keys[4]
     updater = Updater(telgramKey)     
     dp = updater.dispatcher
