@@ -17,4 +17,4 @@ Run - sudo Python3 main.py
 This version currently doesnt use twitter's streaming api and relys on simple waits and updates. I'd like to make a seperate version of this app that uses twitter's streaming method. 
 
 # Depiction
-![alt text](depiction.png)
+![alt text](Depiction.png)
