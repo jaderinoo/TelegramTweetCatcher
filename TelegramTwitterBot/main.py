@@ -33,7 +33,6 @@ def start(bot,update):
     except:
         print("Error during authentication")
         
-    
     #Initialize vars
     i = 0
     archive = ["null"]
@@ -84,7 +83,9 @@ def start(bot,update):
         if(len(follow) == i):
             i = 0
         
-
+        if(len(archive) == '50'):
+            bot.sendMessage(chat_id, "Clearing list")
+            archive.clear()
 #Initializes the telegram bot and listens for a command
 def main():
     #Pulls Telegram api key from keys.txt and creates an updater
