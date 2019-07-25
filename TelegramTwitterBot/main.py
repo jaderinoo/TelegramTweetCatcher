@@ -41,12 +41,12 @@ def start(bot,update):
     temp = follow[i]
     status_list = api.user_timeline(str(temp))
     status = status_list[0]
-    dataUser = json.dumps(status._json['entities']) 
+    dataUser = json.dumps(status._json['id']) 
     archive[0] = str(dataUser)
         
     while(len(follow) >= i):
-        #Cooldown Timer
-        time.sleep(180)
+        #Cooldown Timer / Checks every 15 seconds
+        time.sleep(15)
         
         #Updates Chatid
         chat_id = update.message.chat_id
@@ -58,7 +58,7 @@ def start(bot,update):
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
-        tempData = json.dumps(status._json['entities'])        
+        tempData = json.dumps(status._json['id'])        
         print(str(tempData))
         
         #Check if the newly pulled status exists in the current set
