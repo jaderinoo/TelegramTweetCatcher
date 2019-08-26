@@ -37,6 +37,7 @@ def start(bot,update):
         
     #Initialize vars
     i = 0
+    x = 0
     archive = ["null"]
     
     #Initializes the first position of archive
@@ -82,9 +83,14 @@ def start(bot,update):
             #Pulls the id from the json
             printData = json.dumps(status._json['id']) 
             
-            #Format the string and sends it to the telegram user 
-            text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
-            bot.sendMessage(chat_id, text)
+            #Doesnt send the initial tweet saved into archive
+            if(len(follow) != x):
+                x = x + 1
+            
+            #Format the string and sends it to the telegram user   
+            if(len(follow) == x):
+                text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
+                bot.sendMessage(chat_id, text)
                 
         #Increment i to move to next
         i = i + 1
