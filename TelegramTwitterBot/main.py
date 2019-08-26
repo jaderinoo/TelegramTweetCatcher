@@ -45,8 +45,12 @@ def start(bot,update):
     archive[0] = str(dataUser)
         
     while(len(follow) >= i):
-        #Cooldown Timer / Checks every 15 seconds
-        time.sleep(15)
+        #Cooldown Timer / Checks every 60 seconds
+        print("Countdown: 60sec")
+        time.sleep(30)
+        
+        print("Countdown: 30sec")
+        time.sleep(30)
         
         #Updates Chatid
         chat_id = update.message.chat_id
