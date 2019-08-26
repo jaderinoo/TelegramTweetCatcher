@@ -56,10 +56,10 @@ def start(bot,update):
         
         #Cooldown Timer / Checks every 60 seconds
         print("Countdown: 60sec")
-        time.sleep(1)
+        time.sleep(30)
         
         print("Countdown: 30sec")
-        time.sleep(1)
+        time.sleep(30)
         
         #Updates Chatid
         chat_id = update.message.chat_id
