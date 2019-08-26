@@ -2,6 +2,7 @@ from telegram.ext import (Updater, CommandHandler)
 import json 
 import tweepy
 import time
+import datetime
 
 #Fetch keys for bot and Coinmarketcap API
 with open('keys.txt', 'r') as file:
@@ -29,6 +30,7 @@ def start(bot,update):
     try:
         api.verify_credentials()
         print("Authentication OK")
+        bot.sendMessage(chat_id, "Service started")
     
     except:
         print("Error during authentication")
@@ -45,25 +47,29 @@ def start(bot,update):
     archive[0] = str(dataUser)
         
     while(len(follow) >= i):
+        #Posts current time
+        print("-------------")
+        print(datetime.datetime.now())
+            
+        #Print the current follower
+        print("Follower = " + follow[i])
+        
         #Cooldown Timer / Checks every 60 seconds
         print("Countdown: 60sec")
-        time.sleep(30)
+        time.sleep(1)
         
         print("Countdown: 30sec")
-        time.sleep(30)
+        time.sleep(1)
         
         #Updates Chatid
         chat_id = update.message.chat_id
-    
-        #Print the current follower
-        print("Follower = " + follow[i])
             
         #Load User response into tempData
         temp = follow[i]
         status_list = api.user_timeline(str(temp))
         status = status_list[0]
         tempData = json.dumps(status._json['id'])        
-        print(str(tempData))
+        print("Current Tweet ID: " + str(tempData))
         
         #Check if the newly pulled status exists in the current set
         if tempData not in archive :
@@ -79,17 +85,14 @@ def start(bot,update):
             #Format the string and sends it to the telegram user 
             text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
             bot.sendMessage(chat_id, text)
-            
+                
         #Increment i to move to next
         i = i + 1
             
         #Reset i if follows is maxed
         if(len(follow) == i):
             i = 0
-        
-        if(len(archive) == '50'):
-            bot.sendMessage(chat_id, "Clearing list")
-            archive.clear()
+
 #Initializes the telegram bot and listens for a command
 def main():
     #Pulls Telegram api key from keys.txt and creates an updater
