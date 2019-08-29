@@ -40,27 +40,34 @@ def start(bot,update):
     x = 0
     archive = ["null"]
     
-    #Initializes the first position of archive
+    #Initializes the first position of archive and posts initial logs
     temp = follow[i]
     status_list = api.user_timeline(str(temp))
     status = status_list[0]
     dataUser = json.dumps(status._json['id']) 
     archive[0] = str(dataUser)
+      
+    #Posts current time
+    print("-------------")
+    print(datetime.datetime.now())
+                
+    #Cooldown Timer / Checks every 60 seconds
+    print("Countdown: 60sec")
+    time.sleep(30)
         
+    print("Countdown: 30sec")
+    time.sleep(30)
+    
+    print("-------------")
+    
     while(len(follow) >= i):
-        #Posts current time
-        print("-------------")
-        print(datetime.datetime.now())
-            
+        
+        #Wait 1 second before pulling next tweet
+        time.sleep(1) 
+                 
         #Print the current follower
         print("Follower = " + follow[i])
-        
-        #Cooldown Timer / Checks every 60 seconds
-        print("Countdown: 60sec")
-        time.sleep(30)
-        
-        print("Countdown: 30sec")
-        time.sleep(30)
+
         
         #Updates Chatid
         chat_id = update.message.chat_id
@@ -94,11 +101,25 @@ def start(bot,update):
                 
         #Increment i to move to next
         i = i + 1
-            
+
         #Reset i if follows is maxed
         if(len(follow) == i):
+            #Posts current time
+            print("-------------")
+            print(datetime.datetime.now())
+                        
+            #Cooldown Timer / Checks every 60 seconds
+            print("Countdown: 60sec")
+            time.sleep(30)
+                
+            print("Countdown: 30sec")
+            time.sleep(30)
+            
+            print("-------------")
+            
+            #Reset i to 0 and loop back
             i = 0
-
+        
 #Initializes the telegram bot and listens for a command
 def main():
     #Pulls Telegram api key from keys.txt and creates an updater
