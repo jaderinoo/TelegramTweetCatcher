@@ -29,8 +29,9 @@ def start(bot,update):
     #Attemps to connect to api and posts an OK if it does
     try:
         api.verify_credentials()
-        print("Authentication OK \nService Started!")
-    
+        print("Authentication OK \nService Started! \nPlease enter a name for this container:")
+        containerName = input()
+        
     except:
         print("Error during authentication")
         
@@ -48,6 +49,7 @@ def start(bot,update):
       
     #Posts current time
     print("-------------")
+    print("Container: " + containerName)
     print(datetime.datetime.now())
                 
     #Cooldown Timer / Checks every 60 seconds
@@ -106,6 +108,7 @@ def start(bot,update):
             if(len(follow) == i):
                 #Posts current time
                 print("-------------")
+                print("Container: " + containerName)
                 print(datetime.datetime.now())
                             
                 #Cooldown Timer / Checks every 60 seconds
