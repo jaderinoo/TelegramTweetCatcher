@@ -29,8 +29,7 @@ def start(bot,update):
     #Attemps to connect to api and posts an OK if it does
     try:
         api.verify_credentials()
-        print("Authentication OK")
-        bot.sendMessage(chat_id, "Service started")
+        print("Authentication OK \nService Started!")
     
     except:
         print("Error during authentication")
@@ -52,74 +51,77 @@ def start(bot,update):
     print(datetime.datetime.now())
                 
     #Cooldown Timer / Checks every 60 seconds
-    print("Countdown: 60sec")
-    time.sleep(30)
+    print("Countdown: 90sec")
+    time.sleep(45)
         
-    print("Countdown: 30sec")
-    time.sleep(30)
+    print("Countdown: 90sec")
+    time.sleep(45)
     
     print("-------------")
     
-    while(len(follow) >= i):
-        
-        #Wait 1 second before pulling next tweet
-        time.sleep(1) 
-                 
-        #Print the current follower
-        print("Follower = " + follow[i])
-
-        
-        #Updates Chatid
-        chat_id = update.message.chat_id
+    try:
+        while(len(follow) >= i):
             
-        #Load User response into tempData
-        temp = follow[i]
-        status_list = api.user_timeline(str(temp))
-        status = status_list[0]
-        tempData = json.dumps(status._json['id'])        
-        print("Current Tweet ID: " + str(tempData))
-        
-        #Check if the newly pulled status exists in the current set
-        if tempData not in archive :
-            #Adds the new data into the archive
-            archive.append(str(tempData))
-              
+            #Wait 1 second before pulling next tweet
+            time.sleep(1) 
+                     
+            #Print the current follower
+            print("Follower = " + follow[i])
+    
+            
             #Updates Chatid
             chat_id = update.message.chat_id
-            
-            #Pulls the id from the json
-            printData = json.dumps(status._json['id']) 
-            
-            #Doesnt send the initial tweet saved into archive
-            if(len(follow) != x):
-                x = x + 1
-            
-            #Format the string and sends it to the telegram user   
-            if(len(follow) == x):
-                text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
-                bot.sendMessage(chat_id, text)
                 
-        #Increment i to move to next
-        i = i + 1
-
-        #Reset i if follows is maxed
-        if(len(follow) == i):
-            #Posts current time
-            print("-------------")
-            print(datetime.datetime.now())
-                        
-            #Cooldown Timer / Checks every 60 seconds
-            print("Countdown: 60sec")
-            time.sleep(30)
+            #Load User response into tempData
+            temp = follow[i]
+            status_list = api.user_timeline(str(temp))
+            status = status_list[0]
+            tempData = json.dumps(status._json['id'])        
+            print("Current Tweet ID: " + str(tempData))
+            
+            #Check if the newly pulled status exists in the current set
+            if tempData not in archive :
+                #Adds the new data into the archive
+                archive.append(str(tempData))
+                  
+                #Updates Chatid
+                chat_id = update.message.chat_id
                 
-            print("Countdown: 30sec")
-            time.sleep(30)
-            
-            print("-------------")
-            
-            #Reset i to 0 and loop back
-            i = 0
-        
+                #Pulls the id from the json
+                printData = json.dumps(status._json['id']) 
+                
+                #Doesnt send the initial tweet saved into archive
+                if(len(follow) != x):
+                    x = x + 1
+                
+                #Format the string and sends it to the telegram user   
+                if(len(follow) == x):
+                    text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
+                    bot.sendMessage(chat_id, text)
+                    
+            #Increment i to move to next
+            i = i + 1
+    
+            #Reset i if follows is maxed
+            if(len(follow) == i):
+                #Posts current time
+                print("-------------")
+                print(datetime.datetime.now())
+                            
+                #Cooldown Timer / Checks every 60 seconds
+                print("Countdown: 90sec")
+                time.sleep(45)
+                    
+                print("Countdown: 90sec")
+                time.sleep(45)
+                
+                print("-------------")
+                
+                #Reset i to 0 and loop back
+                i = 0
+                
+    except:
+        print("Error: Unknown \nBot Stopped!")       
 #Initializes the telegram bot and listens for a command
 def main():
     #Pulls Telegram api key from keys.txt and creates an updater
