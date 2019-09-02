@@ -56,7 +56,7 @@ def start(bot,update):
     print("Countdown: 90sec")
     time.sleep(45)
         
-    print("Countdown: 90sec")
+    print("Countdown: 45sec")
     time.sleep(45)
     
     print("-------------")
@@ -115,7 +115,7 @@ def start(bot,update):
                 print("Countdown: 90sec")
                 time.sleep(45)
                     
-                print("Countdown: 90sec")
+                print("Countdown: 45sec")
                 time.sleep(45)
                 
                 print("-------------")
