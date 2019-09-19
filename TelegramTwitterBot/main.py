@@ -1,130 +1,81 @@
 from telegram.ext import (Updater, CommandHandler)
+from tweepy.streaming import StreamListener
+from tweepy import OAuthHandler
+from tweepy import Stream
+import telegram
 import json 
 import tweepy
-import time
 import datetime
 
-#Fetch keys for bot and Coinmarketcap API
+#Fetch keys for bot and twitter API
 with open('keys.txt', 'r') as file:
     keys = file.read().split('\n')
     
+#Grab follower ID's from follow.txt
 with open('follow.txt', 'r') as file:
-    follow = file.read().split('\n')
+    follower_list = file.read().split('\n')
+
+class TwitterStreamer():
+
+    def __init__(self):
+        pass
+
+    #initializes auth and stream vars
+    def stream_tweets(self, follower_list, chat_id):
+
+        #Sets up auth and stream using keys.txt
+        listener = StdOutListener(chat_id)
+        auth = tweepy.OAuthHandler(keys[0], keys[1])
+        auth.set_access_token(keys[2], keys[3])
+        stream = Stream(auth, listener)
+        
+        #filters the stream to only recieve tweets from follow.txt items
+        stream.filter(follow=follower_list)
+
+class StdOutListener(StreamListener):
+    
+    def on_data(self, data):
+        try:
+            #Saves as a json
+            d = json.loads(data)
+            #Checks if item is a retweet
+            if('RT @' not in d['text']):
+                #If a new tweet is found, spit it out in the telegram channel
+                printData = d['id']
+                follower = d['user']['name']
+                bot = telegram.Bot(token=keys[4])
+                text = "New tweet from: " + follower + "\nhttps://twitter.com/" + follower + "/status/" + str(printData)
+                #Sends to channel/user
+                bot.sendMessage(keys[5], text)
+                #Print locally for console
+                print(text)
+                return True
+        except BaseException as e:
+            print("Retweet detected, not posted")
+        return True
+          
+    def on_error(self, status):
+        print(status)
 
 def start(bot,update):
     
-    #Testing keys 
-    print(keys[0] + "," + keys[1]+ "," + keys[2]+ "," + keys[3])
-    
-    # Authenticate to Twitter
-    auth = tweepy.OAuthHandler(keys[0], keys[1])
-    auth.set_access_token(keys[2], keys[3])
-
-    # Create API object
-    api = tweepy.API(auth)
-    
-    #Pull chat ID
+    #Save channel name
+    telegram_name = update.message.chat.title
     chat_id = update.message.chat_id
     
-    #Attemps to connect to api and posts an OK if it does
-    try:
-        api.verify_credentials()
-        print("Authentication OK \nService Started! \nPlease enter a name for this container:")
-        containerName = input()
-        
-    except:
-        print("Error during authentication")
-        
-    #Initialize vars
-    i = 0
-    x = 0
-    archive = ["null"]
+    #Pull chat ID
+    keys[5] = str(chat_id)
     
-    #Initializes the first position of archive and posts initial logs
-    temp = follow[i]
-    status_list = api.user_timeline(str(temp))
-    status = status_list[0]
-    dataUser = json.dumps(status._json['id']) 
-    archive[0] = str(dataUser)
-      
-    #Posts current time
-    print("-------------")
-    print("Container: " + containerName)
+    #Prints console information
+    print("Container: " + telegram_name)
+    print("----------------------\nBot started at: ")
     print(datetime.datetime.now())
-                
-    #Cooldown Timer / Checks every 60 seconds
-    print("Countdown: 90sec")
-    time.sleep(45)
-        
-    print("Countdown: 45sec")
-    time.sleep(45)
     
-    print("-------------")
-    
-    try:
-        while(len(follow) >= i):
-            
-            #Wait 1 second before pulling next tweet
-            time.sleep(1) 
-                     
-            #Print the current follower
-            print("Follower = " + follow[i])
-    
-            
-            #Updates Chatid
-            chat_id = update.message.chat_id
-                
-            #Load User response into tempData
-            temp = follow[i]
-            status_list = api.user_timeline(str(temp))
-            status = status_list[0]
-            tempData = json.dumps(status._json['id'])        
-            print("Current Tweet ID: " + str(tempData))
-            
-            #Check if the newly pulled status exists in the current set
-            if tempData not in archive :
-                #Adds the new data into the archive
-                archive.append(str(tempData))
-                  
-                #Updates Chatid
-                chat_id = update.message.chat_id
-                
-                #Pulls the id from the json
-                printData = json.dumps(status._json['id']) 
-                
-                #Doesnt send the initial tweet saved into archive
-                if(len(follow) != x):
-                    x = x + 1
-                
-                #Format the string and sends it to the telegram user   
-                if(len(follow) == x):
-                    text = "New tweet from: " + follow[i] + "\n https://twitter.com/" + follow[i] + "/status/" + str(printData)
-                    bot.sendMessage(chat_id, text)
-                    
-            #Increment i to move to next
-            i = i + 1
-    
-            #Reset i if follows is maxed
-            if(len(follow) == i):
-                #Posts current time
-                print("-------------")
-                print("Container: " + containerName)
-                print(datetime.datetime.now())
-                            
-                #Cooldown Timer / Checks every 60 seconds
-                print("Countdown: 90sec")
-                time.sleep(45)
-                    
-                print("Countdown: 45sec")
-                time.sleep(45)
-                
-                print("-------------")
-                
-                #Reset i to 0 and loop back
-                i = 0
-                
-    except:
-        print("Error: Unknown \nBot Stopped!")       
+    #initializes twitter stream vars
+    twitter_streamer = TwitterStreamer()
+    twitter_streamer.stream_tweets(follower_list, chat_id)
+
+
 #Initializes the telegram bot and listens for a command
 def main():
     #Pulls Telegram api key from keys.txt and creates an updater
@@ -141,6 +92,5 @@ def main():
     
 if __name__ == '__main__':
     main()
-
 
 
