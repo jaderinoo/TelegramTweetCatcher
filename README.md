@@ -6,7 +6,7 @@ A Telegram bot that fetches new tweets from an unrestricted list.
 
 - Download and Install the tweepy.ext from https://github.com/tweepy/tweepy/blob/master/docs/index.rst
 
-- Move to directory and use: sudo nano keys.txt (Replace required keys)
+- Move to directory and use: sudo nano keys.txt (Replace required keys) and sudo nano follow.txt (Add follower ID's)
 
 - Run "screen" to allow for background usage.
 
@@ -14,15 +14,13 @@ A Telegram bot that fetches new tweets from an unrestricted list.
 
 - The bot will then wait for the command /start from the desired chat
 
-- Once the bot recieves the command it will ask for a container name to better organize multiple chats
-
-- It will update every 1m 30s and check for new tweets 
+- Once the bot recieves the command it will start listening for tweets using twitters streaming service
 
 # Commands
-/Start - Starts the bot and searches for new tweets every 1m 30s, will only post to chat if tweet is new
+/Start - Starts the bot and searches for new tweets from the ID list
 
 # Current Plans
-This version currently doesnt use twitter's streaming api and relys on simple waits and updates. I'd like to make a seperate version of this app that uses twitter's streaming method. 
+:heavy_check_mark: - Done 
 
 # Depiction
 ![alt text](Depiction.png)
