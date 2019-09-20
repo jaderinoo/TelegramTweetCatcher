@@ -33,23 +33,29 @@ class TwitterStreamer():
         stream.filter(follow=follower_list)
 
 class StdOutListener(StreamListener):
-    
+
     def on_data(self, data):
         try:
             #Saves as a json
             d = json.loads(data)
-            #Checks if item is a retweet
-            if('RT @' not in d['text']):
-                #If a new tweet is found, spit it out in the telegram channel
-                printData = d['id']
-                follower = d['user']['name']
-                bot = telegram.Bot(token=keys[4])
-                text = "New tweet from: " + follower + "\nhttps://twitter.com/" + follower + "/status/" + str(printData)
-                #Sends to channel/user
-                bot.sendMessage(keys[5], text)
-                #Print locally for console
-                print(text)
-                return True
+            reply = d['in_reply_to_screen_name']    
+            #Checks if the post is a reply       
+            if(str(reply) == 'None'):
+                print(str(reply))
+                #Checks if item is a retweet
+                if('RT @' not in d['text']):
+                    #If a new tweet is found, spit it out in the telegram channel
+                    printData = d['id']
+                    follower = d['user']['name']
+                    bot = telegram.Bot(token=keys[4])
+                    text = "New tweet from: " + follower + "\nhttps://twitter.com/" + follower + "/status/" + str(printData)
+                    #Sends to channel/user
+                    bot.sendMessage(keys[5], text)
+                    #Print locally for console
+                    print(text)
+                    return True
+            else:
+                print("reply detected, not posted")
         except BaseException as e:
             print("Retweet detected, not posted")
         return True
