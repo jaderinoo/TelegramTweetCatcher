@@ -41,7 +41,6 @@ class StdOutListener(StreamListener):
             reply = d['in_reply_to_screen_name']    
             #Checks if the post is a reply       
             if(str(reply) == 'None'):
-                print(str(reply))
                 #Checks if item is a retweet
                 if('RT @' not in d['text']):
                     #If a new tweet is found, spit it out in the telegram channel
